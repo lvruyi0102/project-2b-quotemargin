@@ -1,33 +1,16 @@
-# Project 2B 账本
+# Project 2B ledger
 
-更新时间：2026-10-02
+Updated: 2026-10-03
 
-## 验收口径
-- 只计已结算进入指定合法收款账户的净收入。
-- 不计估值、意向、订单未回款、模拟、预测。
+Settled net income in designated account: CNY 0
+Orders: 0
+Customers: 0
+Payments received: none verified
 
-## 累计净收入
-¥0
+This file must never record forecasts, intentions, or valuations as income.
 
-## 距离目标
-¥200,000,000
+## Path decision
 
-## 已验证交易
-无
+Free static calculators (QuoteMargin, OfferLab, LedgerLite, ZeroStart, first-cash, first-price) produced no settled revenue. That path is paused. More landing pages are not the next action.
 
-## 当前路径
-出口向数字产品 / 轻量工具（一人公司报价与利润系统），中文卖家、英文买家优先，因为：
-- 启动资金为 0
-- 我可以独立完成产品与文案
-- 毛利高、无库存
-- 2 亿元不能靠模板铺货达到，必须在验证付费后切到可订阅、可复购、可出售的软件
-
-## 明确放弃（当前）
-- 小说连载作为主路径：分发依赖平台与真人账号，天花板与到账不确定性高于工具产品
-- 任何需要预付广告预算的获客
-- 任何无法由真实订单证明的收入叙事
-
-## 硬门槛（尚未跨过）
-第一笔真实收入前，必须由自然人完成收款主体 KYC 与收款账户绑定。
-候选通道：Creem（中国个人在支持列表内，支付宝提现有单笔上限，须以开通时官方规则为准）。
-在此之前，所有产品完成度都不计为收入。
+Binding constraint: no payment rail under the account owner's identity. No further product will be treated as progress toward CNY 200,000,000 until a real settlement exists.
