@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuoteMargin · 一人公司报价与利润</title>
+<style>
+  :root { --bg:#0f1419; --card:#1a2332; --line:#2c3a4f; --text:#e7eef7; --muted:#93a4b8; --ok:#3dd68c; --bad:#ff6b6b; --accent:#7aa2ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: "Segoe UI", "PingFang SC", sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:28px 20px 8px; max-width:980px; margin:0 auto; }
+  h1 { font-size:28px; margin:0 0 8px; }
+  p.lead { color:var(--muted); margin:0; line-height:1.5; }
+  main { max-width:980px; margin:0 auto; padding:20px; display:grid; grid-template-columns: 1.1fr .9fr; gap:16px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input { width:100%; background:#0f1419; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:10px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .kpi { font-size:32px; font-weight:700; margin:4px 0; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); }
+  .muted { color:var(--muted); font-size:13px; line-height:1.5; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td { padding:6px 0; border-bottom:1px solid var(--line); }
+  td:last-child { text-align:right; }
+  footer { max-width:980px; margin:0 auto 28px; padding:0 20px; color:var(--muted); font-size:12px; }
+  @media (max-width:800px) { main { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>QuoteMargin</h1>
+  <p class="lead">报这个价，扣完抽成、税、退款和你自己的时间之后，还剩多少。计算在浏览器本地完成，不上传数据。</p>
+</header>
+<main>
+  <section>
+    <div class="row">
+      <div><label>报价（含税，元）</label><input id="price" type="number" value="8000" /></div>
+      <div><label>预计投入小时</label><input id="hours" type="number" value="40" /></div>
+    </div>
+    <div class="row">
+      <div><label>你的目标时薪（元）</label><input id="wage" type="number" value="200" /></div>
+      <div><label>平台/渠道抽成 %</label><input id="fee" type="number" value="5" /></div>
+    </div>
+    <div class="row">
+      <div><label>综合税负假设 %</label><input id="tax" type="number" value="6" /></div>
+      <div><label>退款/坏账准备 %</label><input id="refund" type="number" value="3" /></div>
+    </div>
+    <div class="row">
+      <div><label>直接成本（外包、素材、API，元）</label><input id="cogs" type="number" value="300" /></div>
+      <div><label>修订轮次（每轮按小时的 15%）</label><input id="revs" type="number" value="1" /></div>
+    </div>
+    <p class="muted">税负是规划假设，不是税务建议。真实税负以你的主体、发票和主管税务机关为准。</p>
+  </section>
+  <section>
+    <div class="muted">这笔单的经济利润</div>
+    <div id="profit" class="kpi">—</div>
+    <div id="verdict" class="muted">填写后自动计算</div>
+    <table>
+      <tr><td>有效小时（含修订）</td><td id="eh">—</td></tr>
+      <tr><td>渠道抽成</td><td id="feeV">—</td></tr>
+      <tr><td>税负假设</td><td id="taxV">—</td></tr>
+      <tr><td>退款准备</td><td id="refV">—</td></tr>
+      <tr><td>时间机会成本</td><td id="timeV">—</td></tr>
+      <tr><td>实现时薪</td><td id="realW">—</td></tr>
+      <tr><td>保本报价（达到目标时薪）</td><td id="floor">—</td></tr>
+    </table>
+  </section>
+</main>
+<footer>Project 2B 第一阶段产品原型。未接入支付。收入未发生。</footer>
+<script>
+const $ = id => document.getElementById(id);
+const n = id => Math.max(0, parseFloat($(id).value) || 0);
+function money(v){ return "¥" + Math.round(v).toLocaleString("zh-CN"); }
+function calc(){
+  const price = n("price"), hours = n("hours"), wage = n("wage");
+  const fee = n("fee")/100, tax = n("tax")/100, refund = n("refund")/100;
+  const cogs = n("cogs"), revs = n("revs");
+  const eh = hours * (1 + 0.15 * revs);
+  const feeV = price * fee, taxV = price * tax, refV = price * refund, timeV = eh * wage;
+  const profit = price - feeV - taxV - refV - cogs - timeV;
+  const realW = eh > 0 ? (price - feeV - taxV - refV - cogs) / eh : 0;
+  const keep = 1 - fee - tax - refund;
+  const floor = keep > 0 ? (timeV + cogs) / keep : Infinity;
+  $("profit").textContent = money(profit);
+  $("profit").className = "kpi " + (profit >= 0 ? "ok" : "bad");
+  $("verdict").textContent = profit >= 0 ? "按你的目标时薪，这单没有亏掉你的时间。" : "按你的目标时薪，这单在买你的时间亏损。";
+  $("eh").textContent = eh.toFixed(1) + " 小时";
+  $("feeV").textContent = money(feeV);
+  $("taxV").textContent = money(taxV);
+  $("refV").textContent = money(refV);
+  $("timeV").textContent = money(timeV);
+  $("realW").textContent = money(realW) + "/小时";
+  $("floor").textContent = Number.isFinite(floor) ? money(floor) : "抽成+税+退款已超过 100%";
+}
+document.querySelectorAll("input").forEach(el => el.addEventListener("input", calc));
+calc();
+</script>
+</body>
+</html>
